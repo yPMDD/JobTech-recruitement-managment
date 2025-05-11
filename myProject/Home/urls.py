@@ -22,7 +22,8 @@ from django.conf import settings
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('',include('JobTech.urls'))
+    path('',include('JobTech.urls')),
+    path('users/',include('users.urls'))
     
     
 ]

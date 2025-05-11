@@ -1,11 +1,22 @@
 from django.db import models
-
+from users.models import CustomUser
 class Job(models.Model):
     title = models.CharField(
         max_length=75,
         verbose_name="Job Title",
         null=True,
         blank=True,
+    )
+    poster = models.ForeignKey(CustomUser,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True)
+    contact_email = models.EmailField(unique=True,
+        max_length=191,
+        verbose_name="Contact Email",
+        null=True,
+        blank=True
+
     )
     description = models.TextField(
         verbose_name="Job Description",
@@ -58,9 +69,9 @@ class Job(models.Model):
 
     )
     REMOTE_CHOICES = [
-        ('Remote', 'Fully Remote'),
-        ('Hybrid', 'Partially Remote'),
-        ('On Site', 'Office Based'),
+        ('Remote', 'Remote'),
+        ('Hybrid', ' Remote'),
+        ('On Site', 'On Site'),
     ]
     remote = models.CharField(
         max_length=20,
@@ -69,14 +80,16 @@ class Job(models.Model):
         verbose_name="Remote Work Option"
     )
     location = models.CharField(  
-        max_length=255,
-        verbose_name="Job Location"
+        max_length=191,
+        verbose_name="Job Location",
+        null=True,
+        blank=True,
     )
     img = models.ImageField(
         default='fallback.png',
         blank=True,
         null=True,
-        verbose_name="Job Image"
+        verbose_name="Company logo"
     )
     date = models.DateTimeField(
         auto_now_add=True,

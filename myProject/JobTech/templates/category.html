@@ -44,37 +44,95 @@
 
 
         <!-- Navbar Start -->
-        <nav class="navbar navbar-expand-lg bg-white navbar-light shadow sticky-top p-0">
-            <a href="/" class="navbar-brand d-flex align-items-center text-center py-0 px-4 px-lg-5">
-                <h1 class="m-0 text-primary">JobTech</h1>
-            </a>
-            <button type="button" class="navbar-toggler me-4" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarCollapse">
-                <div class="navbar-nav ms-auto p-4 p-lg-0">
-                    <a href="/" class="nav-item nav-link">Home</a>
-                    <a href="/about" class="nav-item nav-link">About</a>
-                    <div class="nav-item dropdown">
-                        <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">Jobs</a>
-                        <div class="dropdown-menu rounded-0 m-0">
-                            <a href="/jobList" class="dropdown-item">Job List</a>
-                            <a href="/jobDetail" class="dropdown-item">Job Detail</a>
-                        </div>
-                    </div>
-                    <div class="nav-item dropdown">
-                        <a href="#" class="nav-link dropdown-toggle active" data-bs-toggle="dropdown">Pages</a>
-                        <div class="dropdown-menu rounded-0 m-0">
-                            <a href="/category" class="dropdown-item active">Job Category</a>
-                            <a href="/testimonial" class="dropdown-item">Testimonial</a>
-                            <a href="/notfound" class="dropdown-item">404</a>
-                        </div>
-                    </div>
-                    <a href="/contact" class="nav-item nav-link">Contact</a>
-                </div>
-                <a href="" class="btn btn-primary rounded-0 py-4 px-lg-5 d-none d-lg-block">Post A Job<i class="fa fa-arrow-right ms-3"></i></a>
-            </div>
-        </nav>
+        <nav
+				class="navbar navbar-expand-lg bg-white navbar-light shadow sticky-top p-0"
+			>
+				<a
+					href="/"
+					class="navbar-brand d-flex align-items-center text-center py-0 px-4 px-lg-5"
+				>
+					<h1 class="m-0 text-primary">JobTech</h1>
+				</a>
+				<button
+					type="button"
+					class="navbar-toggler me-4"
+					data-bs-toggle="collapse"
+					data-bs-target="#navbarCollapse"
+				>
+					<span class="navbar-toggler-icon"></span>
+				</button>
+				<div class="collapse navbar-collapse" id="navbarCollapse">
+					<div class="navbar-nav ms-auto p-4 p-lg-0">
+						<a href="/" class="nav-item nav-link active">Home</a>
+						<a href="/about" class="nav-item nav-link">About</a>
+						<a href="/contact" class="nav-item nav-link">Contact</a>
+						<div class="nav-item dropdown">
+							<a
+								href="#"
+								class="nav-link dropdown-toggle"
+								data-bs-toggle="dropdown"
+								>Jobs</a
+							>
+							<div class="dropdown-menu rounded-0 m-0">
+								<a href="/jobList" class="dropdown-item">Job List</a>
+								<a href="/category" class="dropdown-item">Job Category</a>
+							</div>
+						</div>
+						<div class="nav-item dropdown">
+							<a
+								href="#"
+								class="nav-link dropdown-toggle "
+								data-bs-toggle="dropdown"
+								>
+								{%if user.is_authenticated and user.first_name and user.last_name%}
+								{{user.first_name}} {{user.last_name}} 
+								{% elif user.username %}
+								{{user.username}}
+								{%else%}
+								Signup / Login
+								{%endif%}
+								</a
+							>
+							<div class="dropdown-menu rounded-0 m-0">
+								
+								
+								{% if user.is_authenticated and not user.is_superuser %}
+								<a href="/users/login/" class="dropdown-item">Profile</a>
+								<div class="h-[1px] bg-gray-800 p-1 w-full" ></div>
+								<form action="/users/logout/" method="POST" >
+									{% csrf_token %}
+								<button class="dropdown-item text-red-500">Log out </button>
+							</form>
+								{% elif user.is_superuser %}
+								<a href="/admin/" class="dropdown-item">Admin Panel</a>
+								<form action="/users/logout/" method="POST" >
+									{% csrf_token %}
+								<button class="dropdown-item text-red-500">Log out </button>
+							</form>
+								{% else %}
+								 <a href="/users/signup/" class="dropdown-item">Sign up</a>
+								<a href="/users/login" class="dropdown-item">Log in</a> 
+								{% endif %}
+							</div>
+						</div>
+					</div>
+					<a
+						{% if user.role == 'candidate' %}
+						href=""
+						{% else %}
+						href=""
+						{%endif%}
+						class="btn btn-primary rounded-0 py-4 px-lg-5 d-none d-lg-block"
+						>
+						{% if user.role == 'candidate' %}
+						Apply For Jobs
+						{% else %}
+						Post a Job
+						{%endif%}
+						<i class="fa fa-arrow-right ms-3"></i
+					></a>
+				</div>
+			</nav>
         <!-- Navbar End -->
 
 

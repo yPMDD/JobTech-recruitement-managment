@@ -18,7 +18,8 @@
 			href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600&family=Inter:wght@700;800&display=swap"
 			rel="stylesheet"
 		/>
-
+		<script src="//unpkg.com/alpinejs" defer></script>
+		<script src="https://cdn.tailwindcss.com"></script>
 		<!-- Icon Font Stylesheet -->
 		<link
 			href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css"
@@ -47,6 +48,47 @@
 	</head>
 
 	<body>
+		{% if messages %}
+    <div class="position-fixed" style="top: 4.5rem; left: 0; width: 17rem; height: 2rem; ">
+        {% for message in messages %}
+		<div
+			x-data="{ show: false }" 
+			x-init="
+				$nextTick(() => {
+					show = true;
+					setTimeout(() => show = false, 3000);
+				})	
+			"
+			x-show="show"
+			x-transition:enter="transition ease-in duration-800"
+			x-transition:enter-start="opacity-0 -translate-x-full"
+			x-transition:enter-end="opacity-100 translate-x-0"
+			x-transition:leave="transition ease-in duration-200"
+			x-transition:leave-start="opacity-100 translate-x-0"
+			x-transition:leave-end="opacity-0 -translate-x-full"
+			class="transform mb-1 px-3 py-3  shadow-lg bg-white text-black border-l-4
+			{% if message.tags == 'success' %} border-green-500
+			{% elif message.tags == 'error' %} border-red-500
+			{% elif message.tags == 'warning' %} border-yellow-500
+			{% elif message.tags == 'info' %} border-blue-500
+			{% else %} border-gray-400 {% endif %}"
+			style="z-index: 9999;">
+		
+                <button 
+                    @click="show = false"
+                    class="border border-0 position-absolute" style="padding:5px; top:0; right:0; background:transparent; color:grey;"
+                    aria-label="Dismiss"
+                >
+                    &times;
+                </button>
+                <p class="text-sm font-medium">{{ message }}</p>
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}
+
+
+
 		<div class="container-xxl bg-white p-0">
 			<!-- Spinner Start -->
 			<div
@@ -81,10 +123,11 @@
 				>
 					<span class="navbar-toggler-icon"></span>
 				</button>
-				<div class="collapse navbar-collapse" id="navbarCollapse">
+				<div class=" navbar-collapse" id="navbarCollapse">
 					<div class="navbar-nav ms-auto p-4 p-lg-0">
 						<a href="/" class="nav-item nav-link active">Home</a>
 						<a href="/about" class="nav-item nav-link">About</a>
+						<a href="/contact" class="nav-item nav-link">Contact</a>
 						<div class="nav-item dropdown">
 							<a
 								href="#"
@@ -94,33 +137,66 @@
 							>
 							<div class="dropdown-menu rounded-0 m-0">
 								<a href="/jobList" class="dropdown-item">Job List</a>
-								<a href="/jobDetail" class="dropdown-item">Job Detail</a>
+								<a href="/category" class="dropdown-item">Job Category</a>
 							</div>
 						</div>
 						<div class="nav-item dropdown">
 							<a
 								href="#"
-								class="nav-link dropdown-toggle"
+								class="nav-link dropdown-toggle "
 								data-bs-toggle="dropdown"
-								>Pages</a
+								>
+								{%if user.is_authenticated and user.first_name and user.last_name%}
+								{{user.first_name}} {{user.last_name}} 
+								{% elif user.username %}
+								{{user.username}}
+								{%else%}
+								Signup / Login
+								{%endif%}
+								</a
 							>
 							<div class="dropdown-menu rounded-0 m-0">
-								<a href="/category" class="dropdown-item">Job Category</a>
-								<a href="/testimonial" class="dropdown-item">Testimonial</a>
-								<a href="/notfound" class="dropdown-item">404</a>
+								
+								
+								{% if user.is_authenticated and not user.is_superuser %}
+								<a href="/users/profile" class="dropdown-item">Profile</a>
+								<a href="/jobsPosted" class="dropdown-item">Jobs posted</a>
+								<form action="/users/logout/" method="POST" >
+									{% csrf_token %}
+								<button class="dropdown-item text-red-500">Log out </button>
+							</form>
+								{% elif user.is_superuser %}
+								<a href="/admin/" class="dropdown-item">Admin Panel</a>
+								<form action="/users/logout/" method="POST" >
+									{% csrf_token %}
+								<button class="dropdown-item text-red-500">Log out </button>
+							</form>
+								{% else %}
+								 <a href="/users/signup/" class="dropdown-item">Sign up</a>
+								<a href="/users/login" class="dropdown-item">Log in</a> 
+								{% endif %}
 							</div>
 						</div>
-						<a href="contact.html" class="nav-item nav-link">Contact</a>
 					</div>
 					<a
+						{% if user.role == 'candidate' %}
 						href=""
+						{% else %}
+						href="/jobForm"
+						{%endif%}
 						class="btn btn-primary rounded-0 py-4 px-lg-5 d-none d-lg-block"
-						>Post A Job<i class="fa fa-arrow-right ms-3"></i
-					></a>
+						>
+						{% if user.role == 'candidate' %}
+						Apply For Jobs
+						{% else %}
+						Post a Job
+						{%endif%}
+						<i class="fa fa-arrow-right ms-3"></i></a>
 				</div>
 			</nav>
 			<!-- Navbar End -->
-
+			
+		  
 			<!-- Carousel Start -->
 			<div class="container-fluid p-0">
 				<div class="owl-carousel header-carousel position-relative">
@@ -200,53 +276,7 @@
 			</div>
 			<!-- Carousel End -->
 
-			<!-- Search Start -->
-			<div
-				class="container-fluid bg-primary mb-5 wow fadeIn"
-				data-wow-delay="0.1s"
-				style="padding: 35px"
-			>
-				<div class="container">
-					<div class="row g-2">
-						<div class="col-md-10">
-							<div class="row g-2">
-								<div class="col-md-4">
-									<input
-										type="text"
-										class="form-control border-0"
-										placeholder="Keyword"
-									/>
-								</div>
-								<div class="col-md-4">
-									<select class="form-select border-0">
-										<option selected>Category</option>
-										<option value="IT">IT Services & Consulting</option>
-										<option value="M">Marketing</option>
-										<option value="CS">Customer Service</option>
-										<option value="HR">Human Resource</option>
-										<option value="PR">Project Management</option>
-										<option value="BD">Business Development</option>
-										<option value="S&C">Sales & Communication</option>
-										<option value="T&E">Teaching & Education</option>
-										<option value="D&C">Design & Creative</option>
-									</select>
-								</div>
-								<div class="col-md-4">
-									<select class="form-select border-0">
-										<option selected value="R">Remote</option>
-										<option value="H">Hybrid</option>
-										<option value="OS">On Site</option>
-									</select>
-								</div>
-							</div>
-						</div>
-						<div class="col-md-2">
-							<button class="btn btn-dark border-0 w-100">Search</button>
-						</div>
-					</div>
-				</div>
-			</div>
-			<!-- Search End -->
+			
 
 			<!-- Category Start -->
 			<div class="container-xxl py-5">
@@ -432,6 +462,7 @@
 								<div class="job-item p-4 mb-4">
 									<div class="row g-4">
 										<div class="col-sm-12 col-md-8 d-flex align-items-center">
+											<a href="{% url 'jobDetails' id=job.id %}">
 											<img
 												class="flex-shrink-0 img-fluid border rounded"
 												src="{{job.img.url}}"
@@ -452,10 +483,19 @@
 													><i
 														class="far fa-money-bill-alt text-primary me-2"
 													></i
-													>{{job.MinSalary}} - {{job.MaxSalary}}</span
+													>
+													{% if job.MaxSalary and job.MinSalary %}
+													{{job.MinSalary}} - {{job.MaxSalary}}
+													{% else %}
+													To be discussed
+													{%endif%}
+													</span
+
 												>
+											</a>
 											</div>
 										</div>
+
 										<div
 											class="col-sm-12 col-md-4 d-flex flex-column align-items-start align-items-md-end justify-content-center"
 										>
@@ -475,229 +515,11 @@
 
 								{% endfor %}
 
-								<a class="btn btn-primary py-3 px-5" href=""
+								<a class="btn btn-primary py-3 px-5" href="/jobList/"
 									>Browse More Jobs</a
 								>
-							</div>
-							<div id="tab-3" class="tab-pane fade show p-0">
-								<div class="job-item p-4 mb-4">
-									<div class="row g-4">
-										<div class="col-sm-12 col-md-8 d-flex align-items-center">
-											<img
-												class="flex-shrink-0 img-fluid border rounded"
-												src="img/com-logo-1.jpg"
-												alt=""
-												style="width: 80px; height: 80px"
-											/>
-											<div class="text-start ps-4">
-												<h5 class="mb-3">Software Engineer</h5>
-												<span class="text-truncate me-3"
-													><i class="fa fa-map-marker-alt text-primary me-2"></i
-													>New York, USA</span
-												>
-												<span class="text-truncate me-3"
-													><i class="far fa-clock text-primary me-2"></i>Full
-													Time</span
-												>
-												<span class="text-truncate me-0"
-													><i
-														class="far fa-money-bill-alt text-primary me-2"
-													></i
-													>$123 - $456</span
-												>
-											</div>
-										</div>
-										<div
-											class="col-sm-12 col-md-4 d-flex flex-column align-items-start align-items-md-end justify-content-center"
-										>
-											<div class="d-flex mb-3">
-												<a class="btn btn-light btn-square me-3" href=""
-													><i class="far fa-heart text-primary"></i
-												></a>
-												<a class="btn btn-primary" href="">Apply Now</a>
-											</div>
-											<small class="text-truncate"
-												><i class="far fa-calendar-alt text-primary me-2"></i
-												>Date Line: 01 Jan, 2045</small
-											>
-										</div>
-									</div>
-								</div>
-								<div class="job-item p-4 mb-4">
-									<div class="row g-4">
-										<div class="col-sm-12 col-md-8 d-flex align-items-center">
-											<img
-												class="flex-shrink-0 img-fluid border rounded"
-												src="img/com-logo-2.jpg"
-												alt=""
-												style="width: 80px; height: 80px"
-											/>
-											<div class="text-start ps-4">
-												<h5 class="mb-3">Marketing Manager</h5>
-												<span class="text-truncate me-3"
-													><i class="fa fa-map-marker-alt text-primary me-2"></i
-													>New York, USA</span
-												>
-												<span class="text-truncate me-3"
-													><i class="far fa-clock text-primary me-2"></i>Full
-													Time</span
-												>
-												<span class="text-truncate me-0"
-													><i
-														class="far fa-money-bill-alt text-primary me-2"
-													></i
-													>$123 - $456</span
-												>
-											</div>
-										</div>
-										<div
-											class="col-sm-12 col-md-4 d-flex flex-column align-items-start align-items-md-end justify-content-center"
-										>
-											<div class="d-flex mb-3">
-												<a class="btn btn-light btn-square me-3" href=""
-													><i class="far fa-heart text-primary"></i
-												></a>
-												<a class="btn btn-primary" href="">Apply Now</a>
-											</div>
-											<small class="text-truncate"
-												><i class="far fa-calendar-alt text-primary me-2"></i
-												>Date Line: 01 Jan, 2045</small
-											>
-										</div>
-									</div>
-								</div>
-								<div class="job-item p-4 mb-4">
-									<div class="row g-4">
-										<div class="col-sm-12 col-md-8 d-flex align-items-center">
-											<img
-												class="flex-shrink-0 img-fluid border rounded"
-												src="img/com-logo-3.jpg"
-												alt=""
-												style="width: 80px; height: 80px"
-											/>
-											<div class="text-start ps-4">
-												<h5 class="mb-3">Product Designer</h5>
-												<span class="text-truncate me-3"
-													><i class="fa fa-map-marker-alt text-primary me-2"></i
-													>New York, USA</span
-												>
-												<span class="text-truncate me-3"
-													><i class="far fa-clock text-primary me-2"></i>Full
-													Time</span
-												>
-												<span class="text-truncate me-0"
-													><i
-														class="far fa-money-bill-alt text-primary me-2"
-													></i
-													>$123 - $456</span
-												>
-											</div>
-										</div>
-										<div
-											class="col-sm-12 col-md-4 d-flex flex-column align-items-start align-items-md-end justify-content-center"
-										>
-											<div class="d-flex mb-3">
-												<a class="btn btn-light btn-square me-3" href=""
-													><i class="far fa-heart text-primary"></i
-												></a>
-												<a class="btn btn-primary" href="">Apply Now</a>
-											</div>
-											<small class="text-truncate"
-												><i class="far fa-calendar-alt text-primary me-2"></i
-												>Date Line: 01 Jan, 2045</small
-											>
-										</div>
-									</div>
-								</div>
-								<div class="job-item p-4 mb-4">
-									<div class="row g-4">
-										<div class="col-sm-12 col-md-8 d-flex align-items-center">
-											<img
-												class="flex-shrink-0 img-fluid border rounded"
-												src="img/com-logo-4.jpg"
-												alt=""
-												style="width: 80px; height: 80px"
-											/>
-											<div class="text-start ps-4">
-												<h5 class="mb-3">Creative Director</h5>
-												<span class="text-truncate me-3"
-													><i class="fa fa-map-marker-alt text-primary me-2"></i
-													>New York, USA</span
-												>
-												<span class="text-truncate me-3"
-													><i class="far fa-clock text-primary me-2"></i>Full
-													Time</span
-												>
-												<span class="text-truncate me-0"
-													><i
-														class="far fa-money-bill-alt text-primary me-2"
-													></i
-													>$123 - $456</span
-												>
-											</div>
-										</div>
-										<div
-											class="col-sm-12 col-md-4 d-flex flex-column align-items-start align-items-md-end justify-content-center"
-										>
-											<div class="d-flex mb-3">
-												<a class="btn btn-light btn-square me-3" href=""
-													><i class="far fa-heart text-primary"></i
-												></a>
-												<a class="btn btn-primary" href="">Apply Now</a>
-											</div>
-											<small class="text-truncate"
-												><i class="far fa-calendar-alt text-primary me-2"></i
-												>Date Line: 01 Jan, 2045</small
-											>
-										</div>
-									</div>
-								</div>
-								<div class="job-item p-4 mb-4">
-									<div class="row g-4">
-										<div class="col-sm-12 col-md-8 d-flex align-items-center">
-											<img
-												class="flex-shrink-0 img-fluid border rounded"
-												src="img/com-logo-5.jpg"
-												alt=""
-												style="width: 80px; height: 80px"
-											/>
-											<div class="text-start ps-4">
-												<h5 class="mb-3">Wordpress Developer</h5>
-												<span class="text-truncate me-3"
-													><i class="fa fa-map-marker-alt text-primary me-2"></i
-													>New York, USA</span
-												>
-												<span class="text-truncate me-3"
-													><i class="far fa-clock text-primary me-2"></i>Full
-													Time</span
-												>
-												<span class="text-truncate me-0"
-													><i
-														class="far fa-money-bill-alt text-primary me-2"
-													></i
-													>$123 - $456</span
-												>
-											</div>
-										</div>
-										<div
-											class="col-sm-12 col-md-4 d-flex flex-column align-items-start align-items-md-end justify-content-center"
-										>
-											<div class="d-flex mb-3">
-												<a class="btn btn-light btn-square me-3" href=""
-													><i class="far fa-heart text-primary"></i
-												></a>
-												<a class="btn btn-primary" href="">Apply Now</a>
-											</div>
-											<small class="text-truncate"
-												><i class="far fa-calendar-alt text-primary me-2"></i
-												>Date Line: 01 Jan, 2045</small
-											>
-										</div>
-									</div>
-								</div>
-								<a class="btn btn-primary py-3 px-5" href=""
-									>Browse More Jobs</a
-								>
+
+								
 							</div>
 						</div>
 					</div>
