@@ -11,14 +11,7 @@
 		{% if messages %}
 		<div
 			class="position-fixed"
-			style="
-				top: 4.5rem;
-				left: 0;
-				width: 17rem;
-				height: 2rem;
-				border-top-right-radius: 0.5rem;
-				border-bottom-right-radius: 0.5rem;
-			"
+			style="top: 4.5rem; left: 0; width: 17rem; height: 2rem"
 		>
 			{% for message in messages %}
 			<div
@@ -36,7 +29,7 @@
 				x-transition:leave="transition ease-in duration-200"
 				x-transition:leave-start="opacity-100 translate-x-0"
 				x-transition:leave-end="opacity-0 -translate-x-full"
-				class="transform mb-1 px-3 py-3 rounded-tr-lg rounded-br-lg shadow-lg bg-white text-black border-l-4 {% if message.tags == 'success' %} border-green-500 {% elif message.tags == 'error' %} border-red-500 {% elif message.tags == 'warning' %} border-yellow-500 {% elif message.tags == 'info' %} border-blue-500 {% else %} border-gray-400 {% endif %}"
+				class="transform mb-1 px-3 py-3 shadow-lg bg-white text-black border-l-4 {% if message.tags == 'success' %} border-green-500 {% elif message.tags == 'error' %} border-red-500 {% elif message.tags == 'warning' %} border-yellow-500 {% elif message.tags == 'info' %} border-blue-500 {% else %} border-gray-400 {% endif %}"
 				style="z-index: 9999"
 			>
 				<button

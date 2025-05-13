@@ -159,21 +159,26 @@
 								
 								
 								{% if user.is_authenticated and not user.is_superuser %}
-								<a href="/users/profile" class="dropdown-item">Profile</a>
-								<a href="/jobsPosted" class="dropdown-item">Jobs posted</a>
-								<form action="/users/logout/" method="POST" >
-									{% csrf_token %}
-								<button class="dropdown-item text-red-500">Log out </button>
-							</form>
-								{% elif user.is_superuser %}
-								<a href="/admin/" class="dropdown-item">Admin Panel</a>
-								<form action="/users/logout/" method="POST" >
-									{% csrf_token %}
-								<button class="dropdown-item text-red-500">Log out </button>
-							</form>
-								{% else %}
-								 <a href="/users/signup/" class="dropdown-item">Sign up</a>
-								<a href="/users/login" class="dropdown-item">Log in</a> 
+									<a href="/users/profile" class="dropdown-item">Profile</a>
+										{% if user.role != "candidate" %}
+										<a href="/jobsPosted" class="dropdown-item">Jobs posted</a>
+										{% else %}
+										<a href="/appliedJobs" class="dropdown-item">Applied Jobs</a>
+										{% endif %}
+									
+										<form action="/users/logout/" method="POST" >
+											{% csrf_token %}
+										<button class="dropdown-item text-red-500">Log out </button>
+										</form>
+									{% elif user.is_superuser %}
+										<a href="/admin/" class="dropdown-item">Admin Panel</a>
+										<form action="/users/logout/" method="POST" >
+											{% csrf_token %}
+										<button class="dropdown-item text-red-500">Log out </button>
+										</form>
+									{% else %}
+										<a href="/users/signup/" class="dropdown-item">Sign up</a>
+										<a href="/users/login" class="dropdown-item">Log in</a> 
 								{% endif %}
 							</div>
 						</div>
