@@ -57,7 +57,7 @@
 			x-init="
 				$nextTick(() => {
 					show = true;
-					setTimeout(() => show = false, 3000);
+					setTimeout(() => show = false, 5000);
 				})	
 			"
 			x-show="show"
@@ -141,15 +141,20 @@
 								<a href="/category" class="dropdown-item">Job Category</a>
 							</div>
 						</div>
-						<div class="nav-item dropdown">
-							<a
+						<div class="nav-item dropdown flex">
+							
+							<a	class="flex items-center justify-center mr-6 dropdown-toggle" 
 								href="#"
 								class="nav-link dropdown-toggle "
 								data-bs-toggle="dropdown"
 								>
+								
 								{%if user.is_authenticated and user.first_name and user.last_name%}
+								<img class="rounded-full h-9 w-9 p-1" src="{{user.picture.url}} " alt="">
 								{{user.first_name}} {{user.last_name}} 
+								
 								{% elif user.username %}
+								<img class="rounded-lg h-2  " src="{% static "{{user.picture.url}}" %} %}" alt="">
 								{{user.username}}
 								{%else%}
 								Signup / Login
