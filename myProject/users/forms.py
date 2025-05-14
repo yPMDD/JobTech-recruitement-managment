@@ -80,3 +80,26 @@ class CustomLoginForm(forms.Form):
 
     def get_user(self):
         return self.user
+
+
+# --- EDIT PROFILE FORM ---
+class EditProfileForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ['first_name', 'last_name', 'email', 'phone_number', 'picture']
+        widgets = {
+            'first_name': forms.TextInput(attrs={'class': 'form-control'}),
+            'last_name': forms.TextInput(attrs={'class': 'form-control'}),
+            'email': forms.EmailInput(attrs={'class': 'form-control'}),
+            'role': forms.Select(attrs={'class': 'form-control'}),
+            'phone_number': forms.TextInput(attrs={'class': 'form-control'}),
+            'picture': forms.ClearableFileInput(attrs={'class': 'form-control'}),
+        }
+
+class EditProfilePicture(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ['picture']
+        widgets = {
+            'picture': forms.ClearableFileInput(attrs={'class': 'form-control'}),
+        }

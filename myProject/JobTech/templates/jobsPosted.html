@@ -1,4 +1,4 @@
-{% extends 'layout.html'%} {%block content %}
+{% extends 'layout.html'%} {%load static%} {%block content %}
 
 <!-- Header End -->
 <div class="container-xxl py-5 bg-dark page-header mb-5">
@@ -10,9 +10,7 @@
 			<ol class="breadcrumb text-uppercase">
 				<li class="breadcrumb-item"><a href="/">Home</a></li>
 				<li class="breadcrumb-item text-white active" aria-current="page">
-					Jobs posted by {%if user.is_authenticated and user.first_name and
-					user.last_name%} {{user.first_name}} {{user.last_name}} {% else %}
-					{{user.username}} {%endif%}
+					Jobs posted by {{user.username}}
 				</li>
 			</ol>
 		</nav>
@@ -163,7 +161,7 @@
 			</div>
 		</div>
 		{%else%}
-		<h1 class="">
+		<h1 class="p-20">
 			You haven't post any Job yet :
 			<a class="pl-4 text-green-800" href="/jobForm">Post a new Job</a>
 		</h1>

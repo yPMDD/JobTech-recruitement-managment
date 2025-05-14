@@ -1,5 +1,6 @@
 document.addEventListener("DOMContentLoaded", function () {
 	const profileContainer = document.querySelector(".group");
+	const changeOverlay = document.getElementById("change-overlay");
 	const fileInput = document.getElementById("file-input");
 	const modal = document.getElementById("upload-modal");
 	const dropZone = document.getElementById("drop-zone");
@@ -13,9 +14,11 @@ document.addEventListener("DOMContentLoaded", function () {
 	let selectedFile = null;
 
 	// Open modal when clicking on profile picture
-	profileContainer.addEventListener("click", () => {
-		modal.classList.remove("hidden");
-	});
+	if (changeOverlay) {
+		changeOverlay.addEventListener("click", () => {
+			modal.classList.remove("hidden");
+		});
+	}
 
 	// Browse files button
 	browseBtn.addEventListener("click", () => {
@@ -83,20 +86,7 @@ document.addEventListener("DOMContentLoaded", function () {
 		resetModal();
 	});
 
-	// Upload button
-	uploadBtn.addEventListener("click", () => {
-		if (selectedFile) {
-			// Here you would typically upload the file to your server
-			// For demo, we'll just update the profile picture
-			const reader = new FileReader();
-			reader.onload = (e) => {
-				profilePicture.src = e.target.result;
-				modal.classList.add("hidden");
-				resetModal();
-			};
-			reader.readAsDataURL(selectedFile);
-		}
-	});
+	// Form submission
 
 	// Reset modal state
 	function resetModal() {
@@ -106,4 +96,39 @@ document.addEventListener("DOMContentLoaded", function () {
 		uploadBtn.disabled = true;
 		unhighlight();
 	}
+});
+
+// Profile field editing functionality
+function editField(field) {
+	const textEl = document.getElementById(`${field}Text`);
+	const inputEl = document.getElementById(`${field}Input`);
+
+	if (textEl && inputEl) {
+		textEl.classList.add("hidden");
+		inputEl.classList.remove("hidden");
+		inputEl.value = textEl.textContent.trim();
+		document.getElementById("saveChanges").classList.remove("hidden");
+	}
+}
+
+// Form submission for profile data
+
+const modal = document.getElementById("delete-modal");
+const openBtn = document.getElementById("delete-openModal");
+const cancelBtn = document.getElementById("delete-cancelBtn");
+const confirmBtn = document.getElementById("delete-confirmDelete");
+
+openBtn.addEventListener("click", () => {
+	modal.classList.remove("hidden");
+	modal.classList.add("flex");
+});
+
+cancelBtn.addEventListener("click", () => {
+	modal.classList.remove("flex");
+	modal.classList.add("hidden");
+});
+
+confirmBtn.addEventListener("click", () => {
+	modal.classList.remove("flex");
+	modal.classList.add("hidden");
 });

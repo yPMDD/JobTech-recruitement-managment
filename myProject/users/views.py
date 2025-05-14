@@ -1,7 +1,11 @@
 from django.contrib.auth import login, logout
-from django.shortcuts import render, redirect
-from .forms import CustomUserCreationForm, CustomLoginForm
+from django.shortcuts import render, redirect, get_object_or_404,redirect
+
+from .forms import CustomUserCreationForm, CustomLoginForm ,EditProfileForm,EditProfilePicture
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+from .models import CustomUser
+
 
 # Create your views here.
 def user_login(req):
@@ -39,3 +43,71 @@ def logout_view(req):
      
 def profile(req):
     return render(req,'profile.html')
+
+
+
+@login_required(login_url='/users/login')
+def editProfile(request,id):
+    User = get_object_or_404(CustomUser, id=id)
+    
+    if request.method == 'POST':
+        form = EditProfileForm(request.POST, instance=User)
+         # Make picture field optional
+          # Debugging
+        if form.is_valid():
+
+            form.save()
+            messages.success(request, "Profile updated successfully")
+            return redirect('users:profile')
+        else:
+            messages.error(request, "Please correct the errors below")
+            print("Form errors:", form.errors)  # Debugging
+    else:
+        form = EditProfileForm(instance=User)
+    
+    return render(request, 'profile.html', {
+        'form': form,
+        'User': User
+    })
+
+@login_required(login_url='/users/login')
+def editProfilePicture(request, id):
+    user = get_object_or_404(CustomUser, id=id)
+
+    if request.method == 'POST':
+        form = EditProfilePicture(request.POST, request.FILES, instance=user)
+        if 'email' in form.fields:
+            form.fields['email'].required = False
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Profile picture updated successfully")
+            return redirect('users:profile')  # make sure this URL name exists
+        else:
+            messages.error(request, "Please correct the errors below")
+            print("Form errors:", form.errors)
+    else:
+        form = EditProfilePicture(instance=user)
+        if 'email' in form.fields:
+            form.fields['email'].required = False
+
+    return render(request, 'profile.html', {
+        'form': form,
+        'User': user
+    })
+
+@login_required(login_url='/users/login')
+def deleteProfile(request, id):
+    User = get_object_or_404(CustomUser, id=id)
+    
+    if request.method == 'POST':
+        User.delete()
+        
+        messages.success(request, "Profile deleted successfully")
+        return redirect('home')
+    
+    return render(request, 'profile.html', {
+        'User': User
+    })
+
+
+ 

@@ -8,6 +8,9 @@ urlpatterns = [
      path('signup/',views.signup,name='signup'),
      path('logout/',views.logout_view,name='logout'),
      path('profile/',views.profile,name='profile'),
+     path('editProfile/<int:id>/',views.editProfile,name='editProfile'),
+     path('deleteProfile/<int:id>/',views.deleteProfile,name='deleteProfile'),
+     path('editProfilePicture/<int:id>/',views.editProfilePicture,name='editProfilePicture'),
      
 
 ]
