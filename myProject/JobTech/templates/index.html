@@ -18,8 +18,7 @@
 			href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600&family=Inter:wght@700;800&display=swap"
 			rel="stylesheet"
 		/>
-		<script src="//unpkg.com/alpinejs" defer></script>
-		<script src="https://cdn.tailwindcss.com"></script>
+		
 		<!-- Icon Font Stylesheet -->
 		<link
 			href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css"
@@ -45,6 +44,8 @@
 
 		<!-- Template Stylesheet -->
 		<link href="{% static 'css/style.css' %}" rel="stylesheet" />
+		<script src="//unpkg.com/alpinejs" defer></script>
+		<script src="https://cdn.tailwindcss.com"></script>
 	</head>
 
 	<body>
@@ -161,7 +162,7 @@
 								{% if user.is_authenticated and not user.is_superuser %}
 									<a href="/users/profile" class="dropdown-item">Profile</a>
 										{% if user.role != "candidate" %}
-										<a href="/jobsPosted" class="dropdown-item">Jobs posted</a>
+										<a href="/jobsPosted" class="dropdown-item">Posted Jobs</a>
 										{% else %}
 										<a href="/appliedJobs" class="dropdown-item">Applied Jobs</a>
 										{% endif %}

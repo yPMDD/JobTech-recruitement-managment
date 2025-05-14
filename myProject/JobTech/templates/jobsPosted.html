@@ -46,11 +46,13 @@
 
 		<!-- Template Stylesheet -->
 		<link href="{% static 'css/style.css' %}" rel="stylesheet" />
+	<script src="//unpkg.com/alpinejs" defer></script>
+		<script src="https://cdn.tailwindcss.com"></script>
 	</head>
 
 	<body>
 		{% if messages %}
-    <div class="position-fixed" style="top: 4.5rem; left: 0; width: 17rem; height: 2rem; border-top-right-radius: 0.5rem; border-bottom-right-radius: 0.5rem;">
+    <div class="position-fixed" style="top: 4.5rem; left: 0; width: 17rem; height: 2rem; ">
         {% for message in messages %}
 		<div
 			x-data="{ show: false }" 
@@ -61,13 +63,13 @@
 				})	
 			"
 			x-show="show"
-			x-transition:enter="transition ease-in duration-900"
+			x-transition:enter="transition ease-in duration-800"
 			x-transition:enter-start="opacity-0 -translate-x-full"
 			x-transition:enter-end="opacity-100 translate-x-0"
 			x-transition:leave="transition ease-in duration-200"
 			x-transition:leave-start="opacity-100 translate-x-0"
 			x-transition:leave-end="opacity-0 -translate-x-full"
-			class="transform mb-1 px-3 py-3 rounded-tr-lg rounded-br-lg shadow-lg bg-white text-black border-l-4
+			class="transform mb-1 px-3 py-3  shadow-lg bg-white text-black border-l-4
 			{% if message.tags == 'success' %} border-green-500
 			{% elif message.tags == 'error' %} border-red-500
 			{% elif message.tags == 'warning' %} border-yellow-500
@@ -160,20 +162,26 @@
 								
 								
 								{% if user.is_authenticated and not user.is_superuser %}
-								<a href="/users/login/" class="dropdown-item">Profile</a>
-								<form action="/users/logout/" method="POST" >
-									{% csrf_token %}
-								<button class="dropdown-item text-red-500">Log out </button>
-							</form>
-								{% elif user.is_superuser %}
-								<a href="/admin/" class="dropdown-item">Admin Panel</a>
-								<form action="/users/logout/" method="POST" >
-									{% csrf_token %}
-								<button class="dropdown-item text-red-500">Log out </button>
-							</form>
-								{% else %}
-								 <a href="/users/signup/" class="dropdown-item">Sign up</a>
-								<a href="/users/login" class="dropdown-item">Log in</a> 
+									<a href="/users/profile" class="dropdown-item">Profile</a>
+										{% if user.role != "candidate" %}
+										<a href="/jobsPosted" class="dropdown-item">Posted Jobs</a>
+										{% else %}
+										<a href="/appliedJobs" class="dropdown-item">Applied Jobs</a>
+										{% endif %}
+									
+										<form action="/users/logout/" method="POST" >
+											{% csrf_token %}
+										<button class="dropdown-item text-red-500">Log out </button>
+										</form>
+									{% elif user.is_superuser %}
+										<a href="/admin/" class="dropdown-item">Admin Panel</a>
+										<form action="/users/logout/" method="POST" >
+											{% csrf_token %}
+										<button class="dropdown-item text-red-500">Log out </button>
+										</form>
+									{% else %}
+										<a href="/users/signup/" class="dropdown-item">Sign up</a>
+										<a href="/users/login" class="dropdown-item">Log in</a> 
 								{% endif %}
 							</div>
 						</div>
@@ -201,12 +209,8 @@
             <div class="container-xxl py-5 bg-dark page-header mb-5">
 				<div class="container my-5 pt-5 pb-4">
 					<h1 class="display-3 text-white mb-3 animated slideInDown text-uppercase">
-						Jobs posted by 
-						{%if user.is_authenticated and user.first_name and user.last_name%}
-						{{user.first_name}} {{user.last_name}} 
-						{% else  %}
-						{{user.username}}
-						{%endif%}
+						Posted Jobs
+						
 						 </h1>
 					<nav aria-label="breadcrumb">
 						<ol class="breadcrumb text-uppercase">
@@ -225,10 +229,10 @@
 
 			<div class="bg-gray-50 p-5 md:p-8">
 				<div class="max-w-7xl mx-auto">
-					
+					{% if user.is_authenticated and jobs %}
 					<div class="bg-white shadow-sm overflow-hidden">
 						<div class="overflow-x-auto">
-							{% if user.is_authenticated and jobs %}
+							
 							<table class="w-full">
 								<thead class="bg-gray-50">
 									<tr class="text-left">
@@ -306,9 +310,11 @@
 											</table>
 												{%endif %}
 											{%endfor%}
+												</div>
+											</div>
 										{%else%}
-										<p class="align-items-center">You haven't post any Job yet 
-										<a class=" text-green-800" href="/jobForm">Post a new Job</a></p>
+										<h1 class="">You haven't post any Job yet :
+										<a class="pl-4 text-green-800" href="/jobForm">Post a new Job</a></h1>
 									{%endif%}
 
 									
@@ -317,8 +323,7 @@
 									
 									
 								
-						</div>
-					</div>
+					
 				</div>
 			</div>
 
