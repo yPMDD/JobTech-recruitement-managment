@@ -11,7 +11,7 @@ class Job(models.Model):
         on_delete=models.CASCADE,
         null=True,
         blank=True)
-    contact_email = models.EmailField(unique=True,
+    contact_email = models.EmailField(
         max_length=191,
         verbose_name="Contact Email",
         null=True,
