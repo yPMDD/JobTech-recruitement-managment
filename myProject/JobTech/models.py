@@ -68,6 +68,10 @@ class Job(models.Model):
         verbose_name="Category"
 
     )
+    applications = models.BigIntegerField(
+        default=0,
+        verbose_name="Number of Applications"
+    )
     REMOTE_CHOICES = [
         ('Remote', 'Remote'),
         ('Hybrid', ' Remote'),
@@ -95,7 +99,43 @@ class Job(models.Model):
         auto_now_add=True,
         verbose_name="Posting Date"
     )
+    status = models.CharField(
+        max_length=20,
+        choices=[
+            ('active', 'active'),
+            ('closed', 'closed')
+        ],
+        default='active',
+        verbose_name="Job Status"
+    )
 
     def __str__(self):
         return self.title
 
+
+
+class Application(models.Model):
+    job = models.ForeignKey(Job, on_delete=models.CASCADE)
+    applicant = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    cover_letter = models.TextField(
+        verbose_name="Cover Letter",
+        help_text="Detailed cover letter",
+        null=True,
+        blank=True,
+    )
+    resume = models.FileField(upload_to='resumes/')
+    date_applied = models.DateTimeField(auto_now_add=True)
+    status = models.CharField(
+        max_length=20,
+        choices=[
+            ('new', 'new'),
+            ('interviewing', 'interviewing'),
+            ('accepted', 'accepted'),
+            ('rejected', 'rejected')
+        ],
+        default='new'
+    )
+
+    def __str__(self):
+        return f"{self.applicant} - {self.job.title}"
+    

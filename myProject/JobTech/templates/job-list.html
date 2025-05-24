@@ -159,11 +159,14 @@
                                             <a class="btn btn-light btn-square me-3" href=""
                                                 ><i class="far fa-heart text-primary"></i
                                             ></a>
-                                            <a class="btn btn-primary" href="">Apply Now</a>
+                                            <form action="{% url "applyJob" id=job.id %}" method="POST">
+                                                {% csrf_token %}
+                        
+												<button class="btn btn-primary" href="">Apply Now</button></form>
                                         </div>
                                         <small class="text-truncate"
                                             ><i class="far fa-calendar-alt text-primary me-2"></i
-                                            >Date Line: {{job.date}}
+                                            >Date Line: {{job.date|date:"Y-m-d"}}
                                         </small>
                                     </div>
                                 </div>

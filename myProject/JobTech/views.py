@@ -1,8 +1,9 @@
 from django.shortcuts import render, get_object_or_404,redirect
-from .models import Job 
+from .models import Job , Application
 from django.contrib.auth.decorators import login_required
 from .forms import JobPostingForm
 from django.contrib import messages
+from django.contrib.auth.models import User
 
 def homepage(req):
     Jobs  = Job.objects.all().order_by('-date')
@@ -101,3 +102,99 @@ def deleteJob(req,id):
     job.delete()
     messages.success(req, "Job deleted successfully")
     return redirect('jobsPosted')  # Redirect to jobs list page
+
+
+
+
+@login_required(login_url='/users/login')
+def applyJob(request, id):
+    job = get_object_or_404(Job, id=id)
+    
+    if request.method == 'POST':
+        # Check if the user has already applied for this job
+        if Application.objects.filter(job=job, applicant=request.user).exists():
+            messages.error(request, "You have already applied for this job.")
+            return redirect('home')
+        job.applications = job.applications + 1
+        job.save()
+
+        if request.user.candidate.resume is None:
+            messages.error(request, "Please upload your resume before applying.")
+            return redirect('profile')
+        
+        app = Application(
+            job=job,
+            applicant=request.user,
+            cover_letter=request.user.candidate.cover_letter,
+            resume=request.user.candidate.resume
+            
+        )
+        
+        app.save()
+        # Handle the application logic here
+        messages.success(request, f"You have successfully applied for the {job.title} job!")
+        return redirect('home')
+    
+    return render(request, 'appliedJobs.html', {
+        'user': User,
+        'job': job
+    })
+
+
+
+def appliedJobs(request):
+    applications = Application.objects.filter(applicant=request.user)
+    return render(request, 'appliedJobs.html', {
+        'applications': applications
+    })
+
+def viewApplicants(request, id):
+    job = get_object_or_404(Job, id=id)
+    applications = Application.objects.filter(job=job)
+    return render(request, 'viewApplicants.html', {
+        'applications': applications,
+        'job': job
+    })
+
+
+def changeAppStatus(request, id, status):
+    application = get_object_or_404(Application, id=id)
+    
+    if request.method == 'POST':
+        application.status = status
+        application.save()
+        messages.success(request, f"Application status updated to {status}")
+        return redirect('viewApplicants', id=application.job.id)
+    
+    return render(request, 'viewApplicants.html', {
+        'application': application,
+        'status': status
+    })
+
+def changeJobStatus(request, id, status):
+    job = get_object_or_404(Job, id=id)
+    
+    if request.method == 'POST':
+        job.status = status
+        job.save()
+        messages.success(request, f"Job status updated to {status}")
+        return redirect('jobsPosted')
+    
+    return render(request, 'jobsPosted.html', {
+        'job': job,
+        'status': status
+    })
+
+def deleteApplication(request, id):
+    application = get_object_or_404(Application, id=id)
+    job = get_object_or_404(Job, id=application.job.id)
+    if request.method == 'POST':
+        job.applications = job.applications - 1
+        job.save()
+        application.delete()
+        messages.success(request, "Application deleted successfully")
+        return redirect('appliedJobs')
+    
+    return render(request, 'appliedJobs.html', {
+        'application': application
+    })

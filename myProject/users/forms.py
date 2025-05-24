@@ -3,6 +3,7 @@ from django import forms
 from django.contrib.auth import authenticate
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import get_user_model
+from .models import Candidate, Recruiter
 
 User = get_user_model()
 
@@ -10,8 +11,7 @@ User = get_user_model()
 class CustomUserCreationForm(UserCreationForm):
     ROLE_CHOICES = (
         ('candidate', 'Candidate'),
-        ('recruiter', 'Recruiter'),
-        ('HR services', 'HR services'),
+        ('recruiter', 'Recruiter')
     )
 
     role = forms.ChoiceField(
@@ -56,6 +56,17 @@ class CustomUserCreationForm(UserCreationForm):
         
         if commit:
             user.save()
+            # Create the appropriate profile based on role
+            role = self.cleaned_data['role']
+            if role == 'candidate':
+                Candidate.objects.create(user=user)
+            elif role == 'recruiter':
+                Recruiter.objects.create(user=user)
+            
+            # If you're using Django's auth backend, you need this:
+            if hasattr(self, 'save_m2m'):
+                self.save_m2m()
+                
         return user
 
 # --- LOGIN FORM ---
@@ -94,6 +105,17 @@ class EditProfileForm(forms.ModelForm):
             'role': forms.Select(attrs={'class': 'form-control'}),
             'phone_number': forms.TextInput(attrs={'class': 'form-control'}),
             'picture': forms.ClearableFileInput(attrs={'class': 'form-control'}),
+            
+        }
+
+class editCandidateDocuments(forms.ModelForm):
+
+    class Meta:
+        model = Candidate
+        fields = ['resume', 'cover_letter']
+        widgets = {
+            'resume': forms.ClearableFileInput(attrs={'class': 'form-control'}),
+            'cover_letter': forms.ClearableFileInput(attrs={'class': 'form-control'}),
         }
 
 class EditProfilePicture(forms.ModelForm):

@@ -1,10 +1,9 @@
 from django.contrib.auth import login, logout
 from django.shortcuts import render, redirect, get_object_or_404,redirect
-
-from .forms import CustomUserCreationForm, CustomLoginForm ,EditProfileForm,EditProfilePicture
+from .forms import CustomUserCreationForm, CustomLoginForm ,EditProfileForm,EditProfilePicture,editCandidateDocuments
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from .models import CustomUser
+from .models import CustomUser ,Candidate, Recruiter 
 
 
 # Create your views here.
@@ -23,17 +22,28 @@ def user_login(req):
         form = CustomLoginForm()
     return render(req, 'login.html', {'form': form})
 
+
 def signup(req):
     if req.method == 'POST':
-        form = CustomUserCreationForm(req.POST)
+        form = CustomUserCreationForm(req.POST, req.FILES)
         if form.is_valid():
-            user = form.save()
+            user = form.save(commit=False)
+            user.save()  # Save the base user first
+            
+            # Create role-specific profile
+            if user.role == 'candidate':
+                Candidate.objects.create(user=user)
+            elif user.role == 'recruiter':
+                Recruiter.objects.create(user=user)
+            # Add HR services if needed
+            
             login(req, user)
-            messages.success(req,f'Welcome {user.username} , please head out to your profile to complete your registration ! ')
+            messages.success(req, f'Welcome {user.username}! Please complete your profile.')
             return redirect('home')  
     else:
         form = CustomUserCreationForm()
     return render(req, 'signup.html', {'form': form})
+
 
 def logout_view(req):
      if req.method == "POST": 
@@ -47,28 +57,62 @@ def profile(req):
 
 
 @login_required(login_url='/users/login')
-def editProfile(request,id):
-    User = get_object_or_404(CustomUser, id=id)
+def editProfile(request, id):
+    # Ensure the user can only edit their own profile
+    
+    
+    user = get_object_or_404(CustomUser, id=id)
+    is_candidate = (user.role == 'candidate' )
     
     if request.method == 'POST':
-        form = EditProfileForm(request.POST, instance=User)
-         # Make picture field optional
-          # Debugging
-        if form.is_valid():
-
-            form.save()
-            messages.success(request, "Profile updated successfully")
+        
+        user_form = EditProfileForm(request.POST, request.FILES, instance=user)
+        candidate_form = None
+        
+        if is_candidate:
+            candidate_form = editCandidateDocuments(request.POST, request.FILES, instance=user.candidate)
+        
+        if user_form.is_valid() and (not is_candidate or candidate_form.is_valid()):
+            # Save user data
+            user = user_form.save()
+            
+            # Save candidate-specific data (if applicable)
+            if is_candidate:
+                
+                candidate = candidate_form.save(commit=False)
+                
+                # Handle file uploads explicitly (optional, if not handled by the form)
+                if 'resume' in request.FILES:
+                    print("Resume file name:", request.FILES['resume'].name)
+                    candidate.resume = request.FILES['resume']
+                if 'cover_letter' in request.FILES:
+                    print("Cover letter file name:", request.FILES['cover_letter'].name)
+                    candidate.cover_letter = request.FILES['cover_letter']
+                
+                candidate.save()
+            
+            messages.success(request, "Profile updated successfully!")
             return redirect('users:profile')
         else:
-            messages.error(request, "Please correct the errors below")
-            print("Form errors:", form.errors)  # Debugging
+            # Combine form errors for debugging
+            errors = user_form.errors
+            if is_candidate:
+                errors.update(candidate_form.errors)
+            messages.error(request, "Please correct the errors below.")
+            print("Form errors:", errors)
     else:
-        form = EditProfileForm(instance=User)
+        user_form = EditProfileForm(instance=user)
+        candidate_form = None
+        if is_candidate:
+            candidate_form = editCandidateDocuments(instance=user.candidate)
     
-    return render(request, 'profile.html', {
-        'form': form,
-        'User': User
-    })
+    context = {
+        'user_form': user_form,
+        'candidate_form': candidate_form,
+        'user': user,
+        'is_candidate': is_candidate,
+    }
+    return render(request, 'profile.html', context)
 
 @login_required(login_url='/users/login')
 def editProfilePicture(request, id):
@@ -109,5 +153,3 @@ def deleteProfile(request, id):
         'User': User
     })
 
-
- 
