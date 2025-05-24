@@ -1,6 +1,7 @@
 from pathlib import Path
 import os
-
+from dotenv import load_dotenv
+email_mdp = os.getenv('EMAIL_MDP')
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = 'django-insecure-bcjl8+vkdr125t#&w77^whph)b4$8@l=k7&!t44a9u763jopjq'
@@ -17,9 +18,27 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'JobTech',
-    'users'
+    'users',
+    'mailer'
     # Add your apps here
 ]
+import certifi
+import ssl
+
+# Force Django to use certifi's certificates
+# ssl_context = ssl.create_default_context(cafile=certifi.where())
+# EMAIL_SSL_CONTEXT = ssl_context  # For Django email
+
+# Email Configuration
+# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_BACKEND = 'JobTech.backends.email_backend.EmailBackend'  # Custom email backend if needed
+EMAIL_HOST = 'smtp.gmail.com'  # For Gmail
+EMAIL_PORT = 465
+EMAIL_USE_TLS = False
+EMAIL_USE_SSL = True
+EMAIL_HOST_USER = 'saad989011@gmail.com'  # Your email address
+EMAIL_HOST_PASSWORD = 'qkzrxdfuufozqozb' # Your email password or app password
+DEFAULT_FROM_EMAIL = 'saad989011@gmail.com'  # Same as EMAIL_HOST_USER
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

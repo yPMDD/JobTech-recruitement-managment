@@ -23,4 +23,6 @@ urlpatterns = [
     path('changeAppStatus/<int:id>/<str:status>/', views.changeAppStatus, name='changeAppStatus'),
     path('changeJobStatus/<int:id>/<str:status>/', views.changeJobStatus, name='changeJobStatus'),
     path('deleteApplication/<int:id>/', views.deleteApplication, name='deleteApplication'),
+    path('statusEmail/', views.emailPreview, name='changeStatusEmail'),
+     path('applications/export/<int:id>', views.export_applications_to_excel, name='export_applications'),
 ] 

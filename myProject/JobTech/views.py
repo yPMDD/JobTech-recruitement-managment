@@ -4,6 +4,12 @@ from django.contrib.auth.decorators import login_required
 from .forms import JobPostingForm
 from django.contrib import messages
 from django.contrib.auth.models import User
+from django.core.mail import send_mail
+from django.template.loader import render_to_string
+from django.http import HttpResponse
+import pandas as pd
+from .models import Application
+from django.utils import timezone
 
 def homepage(req):
     Jobs  = Job.objects.all().order_by('-date')
@@ -141,13 +147,13 @@ def applyJob(request, id):
     })
 
 
-
+@login_required
 def appliedJobs(request):
     applications = Application.objects.filter(applicant=request.user)
     return render(request, 'appliedJobs.html', {
         'applications': applications
     })
-
+@login_required
 def viewApplicants(request, id):
     job = get_object_or_404(Job, id=id)
     applications = Application.objects.filter(job=job)
@@ -156,21 +162,29 @@ def viewApplicants(request, id):
         'job': job
     })
 
-
+@login_required
 def changeAppStatus(request, id, status):
     application = get_object_or_404(Application, id=id)
     
     if request.method == 'POST':
         application.status = status
         application.save()
-        messages.success(request, f"Application status updated to {status}")
+        # Optionally, send an email notification to the applicant
+        email_body = render_to_string('emails/changeStatus.html', {
+        'application': application
+    })
+        send_mail(
+            'Application Status Update',
+            email_body,'saad989011@gmail.com',
+            [application.applicant.email],html_message=email_body)
+        messages.success(request, f"Application status updated to {status} and email sent to applicant.")
         return redirect('viewApplicants', id=application.job.id)
     
     return render(request, 'viewApplicants.html', {
         'application': application,
         'status': status
     })
-
+@login_required
 def changeJobStatus(request, id, status):
     job = get_object_or_404(Job, id=id)
     
@@ -184,7 +198,7 @@ def changeJobStatus(request, id, status):
         'job': job,
         'status': status
     })
-
+@login_required
 def deleteApplication(request, id):
     application = get_object_or_404(Application, id=id)
     job = get_object_or_404(Job, id=application.job.id)
@@ -198,3 +212,48 @@ def deleteApplication(request, id):
     return render(request, 'appliedJobs.html', {
         'application': application
     })
+
+@login_required
+def emailPreview(request):
+    application = get_object_or_404(Application, id=9)
+    return render(request, 'emails/changeStatus.html', {
+        'application': application
+    })
+    
+
+@login_required
+def export_applications_to_excel(request,id):
+    # Get all applications with related data
+    queryset = Application.objects.filter(job_id=id).select_related('job', 'applicant')
+    
+    # Prepare data for export
+    data = []
+    for app in queryset:
+        data.append({
+            'Candidate': f"{app.applicant.first_name} {app.applicant.last_name}",
+            'Email': app.applicant.email,
+            'Status': app.get_status_display(),
+            'Applied': app.date_applied.strftime('%d-%m-%y'),
+            'Resume': 'No resume uploaded' if not app.resume else 'Resume attached',
+            'Cover Letter': 'No cover letter uploaded' if not app.cover_letter else 'Cover letter provided',
+            'Pertinency': '70%',  # Replace with your actual calculation
+            'Job Title': app.job.title,
+        })
+    
+    # Convert to DataFrame
+    df = pd.DataFrame(data)
+    
+    # Reorder columns to match your table
+    df = df[['Candidate', 'Email', 'Status', 'Applied', 'Resume', 
+             'Cover Letter', 'Pertinency', 'Job Title']]
+    
+    # Create HTTP response
+    response = HttpResponse(
+        content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    )
+    response['Content-Disposition'] = 'attachment; filename="applications_export.xlsx"'
+    
+    # Write DataFrame to Excel
+    df.to_excel(response, index=False, sheet_name='Applications')
+    
+    return response
