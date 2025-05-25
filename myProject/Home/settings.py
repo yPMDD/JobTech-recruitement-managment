@@ -37,7 +37,7 @@ EMAIL_PORT = 465
 EMAIL_USE_TLS = False
 EMAIL_USE_SSL = True
 EMAIL_HOST_USER = 'saad989011@gmail.com'  # Your email address
-EMAIL_HOST_PASSWORD = 'qkzrxdfuufozqozb' # Your email password or app password
+EMAIL_HOST_PASSWORD = email_mdp # Your email password or app password
 DEFAULT_FROM_EMAIL = 'saad989011@gmail.com'  # Same as EMAIL_HOST_USER
 
 MIDDLEWARE = [

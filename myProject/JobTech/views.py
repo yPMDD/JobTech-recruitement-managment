@@ -121,8 +121,12 @@ def applyJob(request, id):
         if Application.objects.filter(job=job, applicant=request.user).exists():
             messages.error(request, "You have already applied for this job.")
             return redirect('home')
-        job.applications = job.applications + 1
-        job.save()
+        if request.user.role != 'candidate':
+            messages.error(request, "You must be a candidate to apply for jobs.")
+            return redirect('home')
+        else:
+            job.applications = job.applications + 1
+            job.save()
 
         if request.user.candidate.resume is None:
             messages.error(request, "Please upload your resume before applying.")
@@ -175,7 +179,7 @@ def changeAppStatus(request, id, status):
     })
         send_mail(
             'Application Status Update',
-            email_body,'saad989011@gmail.com',
+            email_body,'JobTech <saad989011@gmail.com>',
             [application.applicant.email],html_message=email_body)
         messages.success(request, f"Application status updated to {status} and email sent to applicant.")
         return redirect('viewApplicants', id=application.job.id)
