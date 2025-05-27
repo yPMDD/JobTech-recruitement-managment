@@ -10,6 +10,10 @@ from django.http import HttpResponse
 import pandas as pd
 from .models import Application
 from django.utils import timezone
+from django.utils.html import strip_tags
+from premailer import transform
+from django.core.mail import EmailMessage
+
 
 def homepage(req):
     Jobs  = Job.objects.all().order_by('-date')
@@ -154,6 +158,9 @@ def applyJob(request, id):
 @login_required
 def appliedJobs(request):
     applications = Application.objects.filter(applicant=request.user)
+    if request.user.role != 'candidate':
+        messages.error(request, "You must be a candidate to view your applications.")
+        return redirect('home')
     return render(request, 'appliedJobs.html', {
         'applications': applications
     })
@@ -174,13 +181,17 @@ def changeAppStatus(request, id, status):
         application.status = status
         application.save()
         # Optionally, send an email notification to the applicant
-        email_body = render_to_string('emails/changeStatus.html', {
-        'application': application
-    })
-        send_mail(
+        email_body = render_to_string('emails/changeStatus.html', {'application': application})
+        email_html_inlined = transform(email_body)
+        email_plain = strip_tags(email_html_inlined)
+        email = EmailMessage(
             'Application Status Update',
-            email_body,'JobTech <saad989011@gmail.com>',
-            [application.applicant.email],html_message=email_body)
+            email_html_inlined,
+            'JobTech <saad989011@gmail.com>',
+            [application.applicant.email]
+            )
+        email.content_subtype = 'html'  # Set content type to HTML
+        email.send()
         messages.success(request, f"Application status updated to {status} and email sent to applicant.")
         return redirect('viewApplicants', id=application.job.id)
     
