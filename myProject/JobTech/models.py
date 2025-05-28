@@ -167,3 +167,18 @@ class Application(models.Model):
         return f"{self.applicant} - {self.job.title}"
     
     
+
+class interview(models.Model):
+    job = models.ForeignKey(Job, on_delete=models.CASCADE, null=True)
+    applicant = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    application = models.ForeignKey(Application, on_delete=models.CASCADE)
+    date = models.CharField(null=True,blank=True, max_length=191)
+    status = models.CharField(max_length=20,blank=True, null=True , choices=[
+            ('accepted', 'accepted'),
+            ('scheduled', 'scheduled'),
+            ('rejected', 'rejected')],default='scheduled')
+    
+
+    def __str__(self):
+        return f"{self.applicant} - {self.job.title}"
+    

@@ -164,7 +164,14 @@
                         >
                           waiting for interview
                         </span>
-                        {% endif %}
+                        {% if date %}
+                        <p
+                          style="margin: 0 0 0.5rem 0; color: #374151; font-size: 1rem; line-height: 1.5rem;padding-top:6px"
+                          class="fallback-font"
+                        >
+                          Interview Date : {{date}}
+                        </p>
+                        {% endif %} {% endif %}
                       </div>
                     </td>
                   </tr>

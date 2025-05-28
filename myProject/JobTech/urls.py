@@ -25,4 +25,6 @@ urlpatterns = [
     path('deleteApplication/<int:id>/', views.deleteApplication, name='deleteApplication'),
     path('statusEmail/', views.emailPreview, name='changeStatusEmail'),
     path('applications/export/<int:id>', views.export_applications_to_excel, name='export_applications'),
+    path('setInterviewDate/<int:id>',views.setInterviewDate, name='setInterviewDate'),
+    path('viewInterviews/<int:id>',views.viewInterviews, name='viewInterviews'),
 ] 

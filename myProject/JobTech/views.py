@@ -1,5 +1,5 @@
 from django.shortcuts import render, get_object_or_404,redirect
-from .models import Job , Application
+from .models import Job , Application , interview
 from django.contrib.auth.decorators import login_required
 from .forms import JobPostingForm
 from django.contrib import messages
@@ -178,16 +178,21 @@ def viewApplicants(request, id):
     })
 
 @login_required
-def changeAppStatus(request, id, status,date):
+def changeAppStatus(request, id, status):
     application = get_object_or_404(Application, id=id)
     
     if request.method == 'POST':
         application.status = status
         application.save()
+        Interview = get_object_or_404(interview,application_id=application.id)
+        if Interview:
+            Interview.status=status
+            Interview.save()
+            
         # Optionally, send an email notification to the applicant
         email_body = render_to_string('emails/changeStatus.html', {'application': application})
         email_html_inlined = transform(email_body)
-        email_plain = strip_tags(email_html_inlined)
+        # email_plain = strip_tags(email_html_inlined)
         email = EmailMessage(
             'Application Status Update',
             email_html_inlined,
@@ -197,6 +202,7 @@ def changeAppStatus(request, id, status,date):
         email.content_subtype = 'html'  # Set content type to HTML
         email.send()
         messages.success(request, f"Application status updated to {status} and email sent to applicant.")
+        
         return redirect('viewApplicants', id=application.job.id)
     
     return render(request, 'viewApplicants.html', {
@@ -204,6 +210,44 @@ def changeAppStatus(request, id, status,date):
         'status': status
     })
 
+def setInterviewDate(request, id):
+    application = get_object_or_404(Application, id=id)
+    
+    if request.method == 'POST':
+         
+        interviewDate = request.POST.get('date')
+        Interview = interview(
+            job = application.job,
+            applicant = application.applicant,
+            date = interviewDate,
+            application = application
+         )
+        
+        Interview.save()
+
+        application.status = "interviewing"
+        application.save()
+        # Optionally, send an email notification to the applicant
+        email_body = render_to_string('emails/changeStatus.html', 
+                                      {'application': application , 
+                                       'date':interviewDate})
+        email_html_inlined = transform(email_body)
+        # email_plain = strip_tags(email_html_inlined)
+        email = EmailMessage(
+            'Application Status Update',
+            email_html_inlined,
+            'JobTech <saad989011@gmail.com>',
+            [application.applicant.email]
+            )
+        email.content_subtype = 'html'  # Set content type to HTML
+        email.send()
+        messages.success(request, f"Application status updated to interviewing and email sent to applicant.")
+        return redirect('viewApplicants', id=application.job.id)
+    
+    return render(request, 'viewApplicants.html', {
+        'application': application,
+        'status': 'interviewing'
+    })
 
 
 
@@ -242,9 +286,10 @@ def deleteApplication(request, id):
 
 @login_required
 def emailPreview(request):
-    application = get_object_or_404(Application, id=9)
+    application = get_object_or_404(Application, id=16)
     return render(request, 'emails/changeStatus.html', {
-        'application': application
+        'application': application,
+        'date':"19-06-2025 at 9:00"
     })
     
 
@@ -284,3 +329,12 @@ def export_applications_to_excel(request,id):
     df.to_excel(response, index=False, sheet_name='Applications')
     
     return response
+
+
+def viewInterviews(request, id):
+    job = get_object_or_404(Job, id=id)
+    interviews = interview.objects.filter(job=job)
+    return render(request, 'viewInterviews.html', {
+        'interviews': interviews,
+        'job': job
+    })
