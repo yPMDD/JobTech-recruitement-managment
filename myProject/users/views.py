@@ -4,6 +4,9 @@ from .forms import CustomUserCreationForm, CustomLoginForm ,EditProfileForm,Edit
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from .models import CustomUser ,Candidate, Recruiter 
+from .resume_parser import extract_text_from_file, extract_resume_sections
+from django.conf import settings
+import os
 
 
 # Create your views here.
@@ -83,12 +86,24 @@ def editProfile(request, id):
                 
                 # Handle file uploads explicitly (optional, if not handled by the form)
                 if 'resume' in request.FILES:
-                    print("Resume file name:", request.FILES['resume'].name)
+                    
                     candidate.resume = request.FILES['resume']
+                    candidate.save()
                 if 'cover_letter' in request.FILES:
-                    print("Cover letter file name:", request.FILES['cover_letter'].name)
+                    
                     candidate.cover_letter = request.FILES['cover_letter']
+                    candidate.save()
+                    
+                file_path = os.path.join(settings.MEDIA_ROOT, str(candidate.resume))
+                resume_text = extract_text_from_file(file_path)
                 
+                # Extract information from resume
+                extracted_data = extract_resume_sections(resume_text)
+                
+                # Update candidate profile with extracted data
+                candidate.skills = ', '.join(extracted_data['skills'])
+                candidate.education = '\n'.join(extracted_data['education'])
+                candidate.experience = '\n'.join(extracted_data['experience'])
                 candidate.save()
             
             messages.success(request, "Profile updated successfully!")

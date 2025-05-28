@@ -69,6 +69,7 @@ def jobForm(req):
                     description=form.cleaned_data['description'],
                     responsibility=form.cleaned_data['responsibility'],
                     qualifications=form.cleaned_data['qualifications'],
+                    skills=form.cleaned_data['skills'],
                     poster=req.user
                 )
                 job.save()
@@ -119,7 +120,7 @@ def deleteJob(req,id):
 @login_required(login_url='/users/login')
 def applyJob(request, id):
     job = get_object_or_404(Job, id=id)
-    
+    candidate = request.user.candidate
     if request.method == 'POST':
         # Check if the user has already applied for this job
         if Application.objects.filter(job=job, applicant=request.user).exists():
@@ -128,19 +129,22 @@ def applyJob(request, id):
         if request.user.role != 'candidate':
             messages.error(request, "You must be a candidate to apply for jobs.")
             return redirect('home')
+        if request.user.candidate.resume is None or request.user.candidate.resume == '':
+            messages.error(request, "Please upload your resume before applying.")
+            return redirect('users:profile')
         else:
             job.applications = job.applications + 1
             job.save()
 
-        if request.user.candidate.resume is None:
-            messages.error(request, "Please upload your resume before applying.")
-            return redirect('profile')
+
+        
         
         app = Application(
             job=job,
             applicant=request.user,
             cover_letter=request.user.candidate.cover_letter,
-            resume=request.user.candidate.resume
+            resume=request.user.candidate.resume,
+            pertinency = candidate.calculate_pertinence(job)
             
         )
         
@@ -174,7 +178,7 @@ def viewApplicants(request, id):
     })
 
 @login_required
-def changeAppStatus(request, id, status):
+def changeAppStatus(request, id, status,date):
     application = get_object_or_404(Application, id=id)
     
     if request.method == 'POST':
@@ -199,6 +203,10 @@ def changeAppStatus(request, id, status):
         'application': application,
         'status': status
     })
+
+
+
+
 @login_required
 def changeJobStatus(request, id, status):
     job = get_object_or_404(Job, id=id)
@@ -213,6 +221,10 @@ def changeJobStatus(request, id, status):
         'job': job,
         'status': status
     })
+
+
+
+
 @login_required
 def deleteApplication(request, id):
     application = get_object_or_404(Application, id=id)
@@ -249,9 +261,9 @@ def export_applications_to_excel(request,id):
             'Email': app.applicant.email,
             'Status': app.get_status_display(),
             'Applied': app.date_applied.strftime('%d-%m-%y'),
-            'Resume': 'No resume uploaded' if not app.resume else 'Resume attached',
+            'Resume': 'No resume uploaded' if not app.resume else app.resume.url,
             'Cover Letter': 'No cover letter uploaded' if not app.cover_letter else 'Cover letter provided',
-            'Pertinency': '70%',  # Replace with your actual calculation
+            'Pertinency': app.pertinency,  # Replace with your actual calculation
             'Job Title': app.job.title,
         })
     

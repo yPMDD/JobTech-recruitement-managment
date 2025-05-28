@@ -80,7 +80,7 @@
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{app.date_applied|date:'d-m-y'}}</td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{% if app.resume %} <a href="{{app.resume.url}}"><span class="text-green-700 hover:text-green-600">View resume</span></a>{% else %}no resume uploaded{% endif %}</td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{% if app.cover_letter %} <a href="{{app.cover_letter.url}}"><span class="text-green-700 hover:text-green-600">View cover letter</span></a>{% else %}no cover letter uploaded{% endif %}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">70%</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{app.pertinency}}</td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                 <div class="flex gap-2">
                                     <form action="{% url "changeAppStatus" id=app.id status="rejected" %}" method="POST">{% csrf_token %}<button class="px-3 py-1.5 border-none border-red-300 bg-red-100 text-red-700 hover:bg-red-200 text-sm font-medium rounded-md  transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-200">Reject</button></form>

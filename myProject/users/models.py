@@ -1,6 +1,7 @@
 # accounts/models.py
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+# from JobTech.models import Skill  # Assuming Skill model is in JobTech app
 
 class CustomUser(AbstractUser):
     
@@ -34,9 +35,31 @@ class Candidate(models.Model):
     skills = models.TextField(blank=True, null=True)
     experience = models.TextField(blank=True, null=True)
     education = models.TextField(blank=True, null=True)
+    skills = models.CharField(
+        max_length=255,
+        verbose_name="Skills",
+        help_text="Comma-separated list of skills",
+        blank=True,
+        null=True,
+    )
+
+    def getSkills(self):
+        return [skill.strip().lower() for skill in self.skills.split(',') if skill.strip()]
 
     def __str__(self):
         return f"Candidate Profile for {self.user.username}"
+    def calculate_pertinence(self, job):
+        
+        candidate_skills = set(self.getSkills())
+        required_skills = set(job.getRequiredSkills())
+        
+        if not required_skills:  # Avoid division by zero
+            return 0
+            
+        matching_skills = candidate_skills & required_skills
+        pertinence = (len(matching_skills) / len(required_skills)) * 100
+        return round(pertinence, 2)
+    
 
 class Recruiter(models.Model):
     user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, primary_key=True)

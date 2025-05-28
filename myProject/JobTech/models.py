@@ -1,5 +1,15 @@
 from django.db import models
 from users.models import CustomUser
+# from .models import Job
+
+
+# class Skill(models.Model):
+#     job_id = models.ForeignKey(Job, on_delete=models.CASCADE, related_name='skills')
+#     name = models.CharField(max_length=100, unique=True)
+    
+#     def __str__(self):
+#         return self.name
+
 class Job(models.Model):
     title = models.CharField(
         max_length=75,
@@ -108,9 +118,18 @@ class Job(models.Model):
         default='active',
         verbose_name="Job Status"
     )
+    skills = models.CharField(
+        max_length=255,
+        verbose_name="Required Skills",
+        help_text="Comma-separated list of required skills",
+        null=True,
+        blank=True,
+    )
 
     def __str__(self):
         return self.title
+    def getRequiredSkills(self):
+        return [skill.strip().lower() for skill in self.skills.split(',') if skill.strip()]
 
 
 
@@ -135,7 +154,16 @@ class Application(models.Model):
         ],
         default='new'
     )
+    pertinency = models.DecimalField(
+        max_digits=5,
+        decimal_places=2,
+        default=0.00,
+        verbose_name="Pertinency Score",
+        blank=True,
+        null=True,
+    )
 
     def __str__(self):
         return f"{self.applicant} - {self.job.title}"
+    
     

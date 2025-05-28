@@ -115,7 +115,7 @@
           </div>
         </div>
 
-        <div class="col-12">
+        <div class="col-md-6">
           <div class="form-floating">
             <textarea
               class="form-control"
@@ -133,7 +133,7 @@
             {% endif %}
           </div>
         </div>
-        <div class="col-12">
+        <div class="col-md-6">
           <div class="form-floating">
             <textarea
               class="form-control"
@@ -148,8 +148,8 @@
             {% endif %}
           </div>
         </div>
-        <div class="col-12">
-          <div class="form-floating">
+        <div class="col-md-6">
+          <div class="form-floating ">
             <textarea
               class="form-control"
               name="qualifications"
@@ -159,11 +159,29 @@
             ></textarea>
             <label for="message">Job Qualifications</label>
           </div>
-          {% if form.qualifications.errors %}
-          <div class="invalid-feedback">{% for error in form.qualifications.errors %} {{ error }} {%endfor%}</div>
-          {% endif %}
         </div>
-        {% if form.non_field_errors %}
+        {% if form.qualifications.errors %}
+        <div class="invalid-feedback">{% for error in form.qualifications.errors %} {{ error }} {%endfor%}</div>
+        {% endif %}
+        <div class="col-md-6">
+          <div class="form-floating ">
+            <textarea
+              class="form-control "
+              name="skills"
+              placeholder="Leave a message here"
+              id="message"
+              style="height: 150px"
+            ></textarea>
+            <label for="message">
+              Job Skills required
+              <span class="text-danger">*</span>
+              (must be comma separated)
+            </label>
+          </div>
+        </div>
+        {% if form.qualifications.errors %}
+        <div class="invalid-feedback">{% for error in form.qualifications.errors %} {{ error }} {%endfor%}</div>
+        {% endif %} {% if form.non_field_errors %}
         <div class="col-12">
           <div class="alert alert-danger">{% for error in form.non_field_errors %} {{ error }} {% endfor %}</div>
         </div>

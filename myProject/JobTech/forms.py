@@ -5,7 +5,7 @@ class JobPostingForm(forms.ModelForm):
     class Meta:
         model = Job
         fields = ['title', 'contact_email', 'MinSalary', 'MaxSalary', 'category',
-                 'remote', 'location', 'description', 'responsibility', 'qualifications']
+                 'remote', 'location', 'description', 'responsibility', 'qualifications','skills']
         
         widgets = {
             'title': forms.TextInput(attrs={'class': 'form-control'}),
@@ -32,6 +32,11 @@ class JobPostingForm(forms.ModelForm):
             'qualifications': forms.Textarea(attrs={
                 'class': 'form-control',
                 'style': 'height: 150px'
+            }),
+            'skills': forms.Textarea(attrs={
+                'class': 'form-control',
+                'style': 'height: 100px',
+                'placeholder': 'example: Python, Django, React'
             }),
         }
 
