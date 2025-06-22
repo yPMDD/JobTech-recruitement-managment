@@ -110,23 +110,23 @@ python manage.py runserver
 Visit your app at: http://localhost:8000
 
 ```
-🎯 Target Users
+## 🎯 Target Users
 JobTech is ideal for:
 
-🧑‍💼 HR Agencies & Recruiters managing large applicant pools
+-🧑‍💼 HR Agencies & Recruiters managing large applicant pools
 
-🧪 Developers building smart job-matching tools
+-🧪 Developers building smart job-matching tools
 
-🎓 Students applying to internships or jobs
+-🎓 Students applying to internships or jobs
 
-🧑‍💻 Startups needing an in-house job listing platform with automation
+-🧑‍💻 Startups needing an in-house job listing platform with automation
 
-🙌 Contributing
-Have an idea to improve JobTech?
-Pull requests are welcome! Feel free to fork the project and submit issues.
+## 🙌 Contributing
+-Have an idea to improve JobTech?
+-Pull requests are welcome! Feel free to fork the project and submit issues.
 
-📄 License
-This project is open-source and available under the MIT License.
+## 📄 License
+-This project is open-source and available under the MIT License.
 
 
 
