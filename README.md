@@ -49,13 +49,13 @@ It leverages **AI** and **natural language processing (NLP)** to extract meaning
 ## 📸 Demo Screenshots
 
 ### 🗃️ Jobs Page
-![Jobs Page](./assets/jobs.png)
+![Jobs Page](./myProject/assets/jobs.png)
 
 ### 📥 Applications Table
-![Applications](./assets/applications.png)
+![Applications](./myProject/assets/applications.png)
 
 ### 📧 Email Notification Preview
-![Email](./assets/email.png)
+![Email](./myProject/assets/email.png)
 
 ---
 
