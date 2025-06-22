@@ -109,6 +109,7 @@ celery -A jobtech beat -l info
 python manage.py runserver
 Visit your app at: http://localhost:8000
 
+```
 🎯 Target Users
 JobTech is ideal for:
 
@@ -127,16 +128,5 @@ Pull requests are welcome! Feel free to fork the project and submit issues.
 📄 License
 This project is open-source and available under the MIT License.
 
-yaml
-Copy
-Edit
 
----
 
-Let me know if you'd like me to:
-- Add a **badge section** (build status, license, etc.)
-- Write a **contribution guide**
-- Add a **live demo link** or embed a **GIF demo preview**
-- Include a **feature roadmap** section
-
-Happy to tweak or expand it!
